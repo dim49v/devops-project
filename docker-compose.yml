@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  web:
+    image: nginx:${NGINX_VERSION}
+    build:
+      context: .
+      target: web
+      args:
+        NGINX_VERSION_ARG: ${NGINX_VERSION}
+        BASIC_AUTH_ARG: ${BASIC_AUTH}
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - app_runner
+      - phpmyadmin
+    volumes:
+      - ./docker/web/log:/var/log/nginx:rw
+      - ./docker/web/config/nginx.conf:/opt/nginx-confs/default.conf.dist:rw
+      - ./go/public:/var/www/public:ro
+
+  app_runner:
+    build:
+      context: .
+      target: app_runner
+      args:
+       GO_VERSION_ARG: ${GO_VERSION}
+       ALPHINE_VERSION_ARG: ${ALPHINE_VERSION}
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./go/templates:/var/www/app/templates:ro
+      - ./go/public/files:/var/www/app/files:rw
+
+  db:
+    image: mariadb:${MARIADB_VERSION}
+    build:
+      context: .
+      target: mariadb
+      args:
+        MARIADB_VERSION_ARG: ${MARIADB_VERSION}
+        TZ_ARG: ${TZ}
+    restart: unless-stopped
+    ports:
+      - "${MYSQL_PORT}:3306"
+    env_file:
+      - .env
+    volumes:
+      - db_data:/var/lib/mysql:rw
+      - db_log:/var/log/mysql:rw
+
+  phpmyadmin:
+    image: phpmyadmin:${PHPMYADMIN_VERSION}
+    environment:
+      PMA_HOST: ${MYSQL_HOST}
+      PMA_PORT: ${MYSQL_PORT}
+    restart: unless-stopped
+    depends_on:
+      - db
+    env_file:
+      - .env
+
+volumes:
+  db_data:
+  db_log:

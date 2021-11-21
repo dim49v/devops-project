@@ -1,0 +1,10 @@
+table{min-width:1000px;}
+@media (max-width: 1280px) {
+    tr {padding:10px 4px;}
+    table{min-width:800px;}
+    body {font-size:0.70rem;}
+    card {font-size:0.70rem;}
+    @media (max-width: 991px){
+        .main-panel {width: 100%;}
+    }
+}

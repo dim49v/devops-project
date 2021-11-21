@@ -1,0 +1,210 @@
+{{define "styles"}}
+  <style>
+    #tab_1:checked ~ #txt_1,
+    #tab_2:checked ~ #txt_2 { display: block; }
+    #tab_3:checked ~ #txt_3 { display: block; }
+  </style>
+{{end}}
+
+{{define "body"}}
+<div class="content">
+  <div class="container-fluid">
+    <form method="get">
+      <div class="row" >
+        <div class="col-lg-2"> </div>
+        <div class="col-lg-8 text-center">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="row">
+                <div class="col-md-6">
+                  <input type="date" id="date_min" name="date_min" class="form-control" value="{{.data.params.dateMin}}">
+                </div>
+                <div class="col-md-6">
+                  <input type="date" id="date_max" name="date_max" class="form-control" value="{{.data.params.dateMax}}">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <select size = "1" class="form-control" id="body_part" name="body_part">
+                <option value='0'>Вид операции </option>
+                {{range $kBodyPart, $bodyPart := .data.bodyParts}}<option value='{{$kBodyPart}}'{{if eq $kBodyPart $.data.params.bodyPart}} selected{{end}}>{{$bodyPart.Title}}</option>
+                {{end}}
+              </select>
+            </div>
+            <div class="col-md-2">
+              <input type="submit" name="send" id="send" class="btn btn-primary" value="Фильтровать">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="tabs">
+            <input type="radio" name="inset" value="" id="tab_1" checked>
+            <label for="tab_1">Акты</label>
+{{/*            <input type="radio" name="inset" value="" id="tab_2">*/}}
+{{/*            <label for="tab_2">Контракты</label>*/}}
+            <input type="radio" name="inset" value="" id="tab_3">
+            <label for="tab_3">Компоненты</label>
+            <div id ="txt_1" > <!--style="margin-bottom: 20px;"-->
+              <div class="card" style='margin-bottom: 0px;'>
+                <div class="card-header card-header-primary">
+                  <h4 class="card-title ">Акты</h4>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive table-bordered">
+                    <table id="table1" class="table" style='margin-bottom: 0px;'> <!--table-striped  table-sm-->
+                      <thead class="text-primary">
+                        <tr>
+                          <th>№</th>
+                          <th>Акт</th>
+                          <th>Дата</th>
+                          <th>Операция</th>
+                          <th>Компоненты</th>
+                          <th>Фамилия (комментарий)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {{$index := 1}}
+                        {{range $kAct, $act := .data.acts}}<tr>
+                          <td>{{$index}}</td>
+                          <td>{{if $act.File.Valid}}<ul class='nav'><li><a href='public/files/{{$act.File.String}}' target='_blank'><img src='public/assets/img/file_icon.png' width='32' height='32' style='margin-top: 10px;' alt='Акт'></a></li></ul>{{end}}</td>
+                          <td>{{dateFormat $act.Date "02.01.06"}}</td>
+                          <td>{{(index $.data.bodyParts $act.BodyPartId).Title}}</td>
+                          <td>{{range $kComponentId, $componentId := $act.Components}}{{$component := index $.data.components $componentId}}{{$component.Article}} {{$component.Title}} {{if $component.Addition.Valid}}{{$component.Addition.String}} {{end}}{{if $component.Size.Valid}}{{$component.Size.String}} {{end}}<br>{{end}}</td>
+                          <td>{{$act.Addition}}</td>
+                        </tr>{{$index = inc $index}}{{end}}
+                      </tbody>
+                    </table>
+                    <br>
+                  </div>
+                </div>
+              </div>
+            </div>
+{{/*            <div id ="txt_2"></div>*/}}
+            <div id ="txt_3">
+              <div class="card" style='margin-bottom: 0px;'>
+                <div class="card-header card-header-primary">
+                  <h4 class="card-title ">Компоненты</h4>
+                </div>
+                <div class="card-body">
+                  <div class="col-md-3">
+                    <select size = "1" class="form-control" id="year_component" name="year_component" onchange="component_time(this)">
+                      {{range $kYear, $year := .data.params.years}}<option value = '{{$kYear}}' > {{$year}} </option >
+                      {{end}}
+                    </select></div><div class='table-responsive table-bordered' id="component_for_year">
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  </div>
+</div>
+{{end}}
+{{define "scripts"}}
+<script src="public/assets/js/core/jquery.min.js" type="text/javascript"></script>
+<script src="public/assets/js/core/popper.min.js" type="text/javascript"></script>
+<script src="public/assets/js/core/bootstrap-material-design.min.js" type="text/javascript"></script>
+<!--<script src="assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
+  Google Maps Plugin
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>-->
+<!-- Chartist JS -->
+<script src="public/assets/js/plugins/chartist.min.js"></script>
+<!--  Notifications Plugin    -->
+<script src="public/assets/js/plugins/bootstrap-notify.js"></script>
+<!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
+<script src="public/assets/js/material-dashboard.min.js?v=2.1.0" type="text/javascript"></script>
+<!-- Material Dashboard DEMO methods, don't include it in your project! -->
+<script src="public/assets/demo/demo.js"></script>
+<script>
+  $(document).ready(function() {
+    // Javascript method's body can be found in assets/js/demos.js
+    md.initDashboardPageCharts();
+  });
+</script>
+<script type="text/javascript" src="public/assets/js/table.js"></script>
+<script type="text/javascript">
+    function fix_table_head(){
+      var tab1 = document.getElementById('tab_1');
+      // var tab2 = document.getElementById('tab_2');
+      var tab3 = document.getElementById('tab_3');
+      window.onload= function() { fix_header.fix('table1'); };
+      window.onresize= function() {
+        if (tab1.checked) fix_header.fix('table1');
+        // if (tab2.checked) fix_header.fix('table2');
+        if (tab3.checked) fix_header.fix('table3');
+      };
+      tab1.onclick= function() { fix_header.fix('table1'); };
+      // tab2.onclick= function() { fix_header.fix('table2'); };
+      tab3.onclick= function() { fix_header.fix('table3'); };
+    }
+    function show_complex (id){
+      var div = document.getElementById('div_complex'+id);
+      if(div.style.display == 'block') {
+        div.style.display = 'none';
+      }
+      else{
+        div.style.display = 'block';
+      }
+    }
+    function show_add_component(){
+      var div;
+      for(var i=0; div = document.getElementsByClassName('div_add_component').item(i); i++){
+        if(div.style.display == 'inline'){
+          div.style.display = 'none';
+        }
+        else{
+          div.style.display = 'inline';
+        }
+      }
+    }
+    function component_time(select){
+      var year = select.options[select.selectedIndex].value;
+      $.ajax({
+        type: "GET",
+        url: "statistics/components",
+        data: "body_part={{.data.params.bodyPart}}&year="+year,
+        dataType: "html",
+        success: function(data){
+          $("#component_for_year").html(data);
+          fix_table_head();
+          fix_header.fix('table3');
+        }
+      });
+    }
+    fix_table_head();
+    component_time(document.getElementById("year_component"));
+</script>
+<script type="text/javascript">
+  var date1=document.getElementById("date_min");
+  var date2=document.getElementById("date_max");
+  date1.onchange = function(){
+    if (date2.getAttribute("min") !== date1.value) {
+      date2.setAttribute("min", date1.value);
+    }
+  }
+  date2.onchange = function(){
+    if (date1.getAttribute("max") !== date2.value) {
+      date1.setAttribute("max", date2.value);
+    }
+  }
+  //window.onload = function() {
+  var today = new Date();
+  var dd = today.getDate();
+  var mm = today.getMonth()+1; //January is 0!
+  var yyyy = today.getFullYear();
+  if(dd<10){
+    dd='0'+dd
+  }
+  if(mm<10){
+    mm='0'+mm
+  }
+  today = yyyy+'-'+mm+'-'+dd;
+  date1.setAttribute("max", today);
+  date2.setAttribute("max", today);
+  //}
+</script>
+{{end}}

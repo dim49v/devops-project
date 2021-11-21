@@ -1,0 +1,25 @@
+{{define "body"}}
+  <div class="content">
+    <div class="container-fluid">
+      <div class="row" style="margin-top:8%;">
+        <div class="col-lg-4"></div>
+        <div class="col-lg-4 card">
+          <div class="card-header card-header-primary">
+            <h4 class="card-title">Вход</h4>
+          </div>
+          <div class="card-body text-center">
+            <div vertical-align='center'><br><br><br>
+              {{if .data.EmptyData}}
+                <h4>Вы ввели не всю информацию, вернитесь назад и заполните все поля!</h4><br/>
+                <h5><a class='btn btn-primary' href=''>Назад</a></h5><br><br>
+              {{else if .data.WrongLoginPassword}}
+                <h4>Извините, введённый вами логин или пароль неверный</h4><br/>
+                <h5><a class='btn btn-primary' href=''> Назад </a></h5><br><br>
+              {{end}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{end}}

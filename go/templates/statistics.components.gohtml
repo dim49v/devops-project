@@ -1,0 +1,31 @@
+<table id="table3" class="table" style='margin-bottom: 0px;'>
+  <thead class="text-primary">
+    <tr align='left'>
+      <th>Группа</th>
+      <th>№</th>
+      <th>Компонент</th>
+      <th>Всего</th>
+      <th style='width: 50px;'>Янв</th>
+      <th style='width: 50px;'>Фев</th>
+      <th style='width: 50px;'>Мар</th>
+      <th style='width: 50px;'>Апр</th>
+      <th style='width: 50px;'>Май</th>
+      <th style='width: 50px;'>Июн</th>
+      <th style='width: 50px;'>Июл</th>
+      <th style='width: 50px;'>Авг</th>
+      <th style='width: 50px;'>Сен</th>
+      <th style='width: 50px;'>Окт</th>
+      <th style='width: 50px;'>Ноя</th>
+      <th style='width: 50px;'>Дек</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{range $kManuf, $manuf := .}}<tr align='left'><td colspan="16">{{$kManuf}}</td></tr>
+      {{range $kEbp, $ebp := $manuf}}<tr align='left'><td colspan="2"></td><td colspan="14">{{$kEbp}}</td></tr>{{$index := 0}}
+        {{range $kComponent, $component := $ebp}}{{$index = inc $index}}<tr align='left'><td></td><td>{{$index}}</td><td>{{$component.Article}} {{$component.Title}} {{if $component.Addition.Valid}}{{$component.Addition.String}} {{end}}{{if $component.Size.Valid}}{{$component.Size.String}} {{end}}</td>
+        {{range $count := $component.Count}}<td>{{if ne $count 0}}{{$count}}{{end}}</td>{{end}}
+        </tr>{{end}}
+      {{end}}
+    {{end}}
+  </tbody>
+</table>

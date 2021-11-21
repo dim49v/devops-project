@@ -1,0 +1,160 @@
+{{define "body"}}
+    <div class="content">
+      <div class="container-fluid">
+        <form action="acts" method="post" enctype="multipart/form-data" novalidate>
+          <div class="row">
+            <div class="col-md-8">
+              <div class="card">
+                <div class="card-header card-header-primary">
+                  <h4 class="card-title">Акты</h4>
+                </div>
+                <br>
+                <div class="card-body">
+                  <div class="col-md-12 ">
+                    <select size = "1" name="body_sel" id="body_sel" class="form-control" required>
+                      <option class="form-control" value = 0> Операция</option>
+                      {{range $kBody, $body := .data}}
+                      <option value={{$kBody}}> {{$body.Title}} </option>{{end}}
+                    </select>
+                    <br>
+                    <select size = "1" name="body_part_sel" id="body_part_sel" class="form-control" required>
+                      <option class=0 value = 0 > Тип</option>
+                      {{range $kBody, $body := .data}}{{range $kManuf, $manuf := $body.Manufs}}{{range $kBodyPart, $bodyPart := $manuf.BodyParts}}
+                      <option class={{$kBody}} value={{$kBodyPart}}> {{$manuf.Title}} {{$bodyPart.Title}} </option>{{end}}{{end}}{{end}}
+                    </select>
+                    <!--  Дублирование для IE -->
+                    <!--  ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓    -->
+                    <select size = "1" name="body_part_sel_clone" id="body_part_sel_clone" class="form-control" style='display:none;' required>
+                      <option class=0 value=0 > Тип</option>
+                      {{range $kBody, $body := .data}}{{range $kManuf, $manuf := $body.Manufs}}{{range $kBodyPart, $bodyPart := $manuf.BodyParts}}
+                      <option class={{$kBody}} value={{$kBodyPart}}> {{$manuf.Title}} {{$bodyPart.Title}} </option>{{end}}{{end}}{{end}}
+                    </select>
+                    <!--  ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑  -->
+                    <!--Дублирование для IE -->
+                    <br>
+                    {{$selectId := 0}}
+                    {{range $kBody, $body := .data}}{{range $kManuf, $manuf := $body.Manufs}}{{range $kBodyPart, $bodyPart := $manuf.BodyParts}}{{range $kBodyPartElement, $bodyPartElement := $bodyPart.BodyPartElements}}
+                    <div name='div{{$kBodyPart}}' id='Div{{$kBodyPartElement}}' class='w-100'>
+                      <select size = 1 name='Select{{$kBodyPartElement}}' id='Select{{$kBodyPartElement}}' class='form-control' required>
+                        <option value = '0' > {{$bodyPartElement.Title}} {{if not $bodyPartElement.Required}}*{{end}} </option>
+                        {{range $kComponent, $component := $bodyPartElement.Components}}
+                        <option value = '{{$kComponent}}' > {{$component.Article}} {{$component.Title}} {{if $component.Addition.Valid}}{{$component.Addition.String}} {{end}}{{if $component.Size.Valid}}{{$component.Size.String}} {{end}}</option>{{end}}
+                      </select>
+                      <br>
+                    </div>{{$selectId = inc $selectId}}{{end}}{{end}}{{end}}{{end}}
+                  <div class="form-row"><!-- Форма для ввода номера -->
+                    <div class="col-md-8">
+                      <div class="input-group">
+                        <input type="text" class="form-control" id="actNumber" name="actNumber" placeholder="Номер акта">
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <input type="date" id='date' name="date" class="form-control was-validated" placeholder="дд.мм.гггг" required>
+                    </div>
+                  </div>
+                  <br>
+                  <div class="form-row">
+                    <div class="col-md-12 ">
+                      <input type="text" class="form-control" id="additional" name="additional"  placeholder="Фамилия (комментарий) *">
+                    </div> <br>
+                  </div>
+                  <br>
+                  <div class="row">
+                    <div class="col-lg-6 form-check" style="padding-left:15px;">
+                      <label class="form-check-label"  >
+                        <input type="checkbox" class="form-check-input"name="audit" id="audit" value="1"> Ревизия
+                        <span class="form-check-sign">
+									<span class="check"></span>
+								</span>
+                      </label>
+                    </div>
+                    <div class="col-lg-6 float-right">
+                      <div class="row">
+                        <div class="col-md-6"></div>
+                        <div class="col-md-6">
+                          <input type="submit" name='send1' id='send1' class="btn btn-primary float-right"  value=Отправить>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card card-profile">
+              <div class="card-body"  style='height:100%'>
+                <form>
+                  <input type="file" style="margin-top:25px; margin-left:15px;" id="upload" name="upload" />
+                </form> <br>
+                <output id="list" style="width: 100%;">
+                  <img id="IMG" style="width: 100%;"/>
+                </output> <br>
+              </div>
+            </div>
+          </div>
+       </div>
+      </form>
+    </div>
+  </div>
+{{end}}
+{{define "scripts"}}
+<script src="public/assets/js/core/jquery.min.js" type="text/javascript"></script>
+<script src="public/assets/js/core/popper.min.js" type="text/javascript"></script>
+<script src="public/assets/js/core/bootstrap-material-design.min.js" type="text/javascript"></script>
+<!-- Chartist JS -->
+<script src="public/assets/js/plugins/chartist.min.js"></script>
+<!--  Notifications Plugin    -->
+<script src="public/assets/js/plugins/bootstrap-notify.js"></script>
+<!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
+<script src="public/assets/js/material-dashboard.min.js?v=2.1.0" type="text/javascript"></script>
+<!-- Material Dashboard DEMO methods, don't include it in your project! -->
+<script src="public/assets/demo/demo.js"></script>
+<script>
+  $(document).ready(function() {
+    // Javascript method's body can be found in assets/js/demos.js
+    md.initDashboardPageCharts();
+  });
+</script>
+<script type="text/javascript" src="public/assets/js/script.js"></script>
+<script type="text/javascript">
+  window.onload = function() {
+    dynamicSelect("body_sel", "body_part_sel");
+    // scan_sel();
+    setMaxDate();
+  }
+  // function select_depuy(id1, id2){
+  //   var sel1 = document.getElementById(id1);
+  //   var sel2 = document.getElementById(id2);
+  //   sel2.selectedIndex = sel1.selectedIndex;
+  // }
+  function setMaxDate(){
+    var today = new Date();
+    var dd = today.getDate();
+    var mm = today.getMonth()+1;
+    var yyyy = today.getFullYear();
+    if(dd<10){
+      dd='0'+dd
+    }
+    if(mm<10){
+      mm='0'+mm
+    }
+    today = yyyy+'-'+mm+'-'+dd;
+    document.getElementById("date").setAttribute("max", today);
+  }
+  function handleFileSelect(evt) {
+    var files = evt.target.files;
+    var f = files[0];
+    if (f.type.match('image.*')) {
+      var reader = new FileReader();
+      reader.onload = (function(theFile) {
+        return function(e) {
+          document.getElementById("IMG").src = e.target.result;
+        };
+      })(f);
+      reader.readAsDataURL(f);
+    }
+  }
+  document.getElementById('upload').addEventListener('change', handleFileSelect, false);
+</script>
+{{end}}

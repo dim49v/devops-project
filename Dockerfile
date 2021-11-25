@@ -32,11 +32,13 @@ CMD ./app
 FROM nginx:${NGINX_VERSION_ARG} AS web
 ARG BASIC_AUTH_ARG
 COPY ./docker/web/docker-command.sh /bin/docker-command.sh
+COPY ./docker/web/config/healthcheck.nginx.conf /etc/nginx/conf.d/healthcheck.conf
 RUN touch /etc/nginx/.htpasswd \
     && echo "${BASIC_AUTH_ARG}" > /etc/nginx/.htpasswd
 RUN apt-get update && apt-get install -y nginx-extras
 RUN chmod +x /bin/docker-command.sh
 CMD ["/bin/docker-command.sh"]
+HEALTHCHECK CMD wget --quiet --tries=1 --spider http://localhost/self-health || exit 1
 
 
 FROM mariadb:${MARIADB_VERSION_ARG} AS mariadb

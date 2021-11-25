@@ -1,0 +1,92 @@
+---
+- name: Deploy
+  hosts: "{{ DEPLOY_HOST }}"
+  vars:
+    COMPOSE_PROJECT_NAME: devops
+    file_dir: "/var/www/{{ COMPOSE_PROJECT_NAME }}"
+    project_dir: "{{ file_dir }}"
+    list_of_services:
+      - db
+
+  tasks:
+    - name: Install aptitude using apt
+      apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+
+    - name: Install required system packages
+      apt: name={{ item }} state=latest update_cache=yes
+      loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'python3-setuptools', 'git' ]
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu bionic stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt: update_cache=yes name=docker-ce state=latest
+
+    - name: Install docker-compose
+      remote_user: ubuntu
+      get_url:
+        url : https://github.com/docker/compose/releases/download/1.29.1/docker-compose-Linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: 'u+x,g+x'
+
+    - name: Pip docker
+      pip: name=docker
+
+    - name: Pip docker-compose
+      pip: name=docker-compose
+
+    - name: Clone repo
+      git:
+        repo: https://github.com/dim49v/devops-project
+        dest: "{{ project_dir }}"
+        clone: yes
+
+    - name: Stopping docker images
+      docker_compose:
+        project_src: "{{ project_dir }}"
+        state: absent
+        remove_orphans: true
+
+    - name: Creating docker base services images
+      become: yes
+      docker_compose:
+        project_src: "{{ project_dir }}"
+        state: present
+        build: yes
+        pull: yes
+        services: "{{ list_of_services }}"
+
+    - name: "Waiting for {{ item }} to be available"
+      docker_container_info:
+        name: "{{ COMPOSE_PROJECT_NAME }}_{{ item }}_1"
+      register: result
+      until: result.container['State']['Health']['Status'] == "healthy"
+      retries: 10
+      delay: 10
+      loop: "{{ list_of_services }}"
+
+    - name: Import DB data
+      shell: "cat {{project_dir}}/dump.sql | docker exec -i {{ COMPOSE_PROJECT_NAME }}_db_1 mysql -uroot -proot_pWd stocktaking"
+
+    - name: Creating docker images
+      become: yes
+      docker_compose:
+        project_src: "{{ file_dir }}"
+        state: present
+        build: yes
+        pull: yes
+
+    - name: Waiting for new image to be available
+      docker_container_info:
+        name: "{{ COMPOSE_PROJECT_NAME }}_web_1"
+      register: result
+      until: result.container['State']['Health']['Status'] == "healthy"
+      retries: 10
+      delay: 10

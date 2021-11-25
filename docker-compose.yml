@@ -43,8 +43,6 @@ services:
         MARIADB_VERSION_ARG: ${MARIADB_VERSION}
         TZ_ARG: ${TZ}
     restart: unless-stopped
-    ports:
-      - "${MYSQL_PORT}:3306"
     env_file:
       - .env
     volumes:

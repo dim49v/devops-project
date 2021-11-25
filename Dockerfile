@@ -3,6 +3,12 @@ ARG NGINX_VERSION_ARG=1.20.1
 ARG MARIADB_VERSION_ARG=10.6.4
 ARG ALPHINE_VERSION_ARG=3.10
 
+FROM bitnami/git:2 AS git
+RUN mkdir -p /opt/docker-library
+WORKDIR /opt/docker-library
+RUN git clone https://github.com/docker-library/healthcheck.git /opt/docker-library/healthcheck
+
+
 FROM golang:${GO_VERSION_ARG} AS app_builder
 ARG GO_VERSION_ARG
 COPY ./.env /var/www/app/.env
@@ -38,8 +44,11 @@ RUN mkdir -p /etc/mysql/conf.d
 ARG TZ_ARG="Europe/Moscow"
 RUN ln -snf /usr/share/zoneinfo/${TZ_ARG} /etc/localtime && echo ${TZ_ARG} > /etc/timezone
 COPY ./docker/mariadb/config/my.cnf /etc/mysql/conf.d/my.cnf
+COPY --from=git /opt/docker-library/healthcheck/mysql/docker-healthcheck /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-healthcheck
 RUN chmod 0444 /etc/mysql/conf.d/my.cnf \
     && mkdir -p /var/log/mysql \
     && touch /var/log/mysql/mysql-slow.log \
     && chown -R mysql:mysql /var/log/mysql
 VOLUME ["/var/log/mysql"]
+HEALTHCHECK CMD ["docker-healthcheck"]

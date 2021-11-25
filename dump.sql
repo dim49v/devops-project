@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS `body` (
 
 -- Дамп данных таблицы stocktaking.body: ~2 rows (приблизительно)
 /*!40000 ALTER TABLE `body` DISABLE KEYS */;
-INSERT INTO `body` (`id`, `title`) VALUES
+INSERT IGNORE INTO `body` (`id`, `title`) VALUES
 	(1, 'Бедро'),
 	(2, 'Колено');
 /*!40000 ALTER TABLE `body` ENABLE KEYS */;
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS `body_part` (
 
 -- Дамп данных таблицы stocktaking.body_part: ~10 rows (приблизительно)
 /*!40000 ALTER TABLE `body_part` DISABLE KEYS */;
-INSERT INTO `body_part` (`id`, `title`, `body_id`, `manuf_id`) VALUES
+INSERT IGNORE INTO `body_part` (`id`, `title`, `body_id`, `manuf_id`) VALUES
 	(1, 'Цемент', 1, 1),
 	(2, 'Бесцемент', 1, 1),
 	(3, 'Гибрид', 1, 1),
@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS `body_part_element` (
 
 -- Дамп данных таблицы stocktaking.body_part_element: ~43 rows (приблизительно)
 /*!40000 ALTER TABLE `body_part_element` DISABLE KEYS */;
-INSERT INTO `body_part_element` (`id`, `el_body_part_id`, `body_part_id`, `required`) VALUES
+INSERT IGNORE INTO `body_part_element` (`id`, `el_body_part_id`, `body_part_id`, `required`) VALUES
 	(1, 2, 1, 1),
 	(2, 6, 1, 1),
 	(3, 1, 1, 1),
@@ -161,7 +161,7 @@ CREATE TABLE IF NOT EXISTS `bpe_component` (
 
 -- Дамп данных таблицы stocktaking.bpe_component: ~838 rows (приблизительно)
 /*!40000 ALTER TABLE `bpe_component` DISABLE KEYS */;
-INSERT INTO `bpe_component` (`component_id`, `body_part_element_id`) VALUES
+INSERT IGNORE INTO `bpe_component` (`component_id`, `body_part_element_id`) VALUES
 	(2, 3),
 	(2, 17),
 	(4, 3),
@@ -1016,7 +1016,7 @@ CREATE TABLE IF NOT EXISTS `component` (
 
 -- Дамп данных таблицы stocktaking.component: ~489 rows (приблизительно)
 /*!40000 ALTER TABLE `component` DISABLE KEYS */;
-INSERT INTO `component` (`id`, `article`, `title`, `size`, `addition`, `sort`, `barcode`) VALUES
+INSERT IGNORE INTO `component` (`id`, `article`, `title`, `size`, `addition`, `sort`, `barcode`) VALUES
 	(2, '0580-1-351', 'Ножка бедренная', '35,5мм р. 0', 'EXETER V40', 1, '0'),
 	(4, '0580-1-352', 'Ножка бедренная', '37,5мм р. 0', 'EXETER V40', 2, '0104546540153241'),
 	(6, '0580-1-371', 'Ножка бедренная', '37,5мм р. 1', 'EXETER V40', 3, '0104546540153258'),
@@ -1494,7 +1494,7 @@ CREATE TABLE IF NOT EXISTS `el_body_part` (
 
 -- Дамп данных таблицы stocktaking.el_body_part: ~8 rows (приблизительно)
 /*!40000 ALTER TABLE `el_body_part` DISABLE KEYS */;
-INSERT INTO `el_body_part` (`id`, `title`) VALUES
+INSERT IGNORE INTO `el_body_part` (`id`, `title`) VALUES
 	(1, 'Ножка'),
 	(2, 'Чашка'),
 	(3, 'Винт'),
@@ -1516,7 +1516,7 @@ CREATE TABLE IF NOT EXISTS `manuf` (
 
 -- Дамп данных таблицы stocktaking.manuf: ~2 rows (приблизительно)
 /*!40000 ALTER TABLE `manuf` DISABLE KEYS */;
-INSERT INTO `manuf` (`id`, `title`) VALUES
+INSERT IGNORE INTO `manuf` (`id`, `title`) VALUES
 	(1, 'Striker'),
 	(2, 'DePuy');
 /*!40000 ALTER TABLE `manuf` ENABLE KEYS */;
@@ -1536,7 +1536,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 
 -- Дамп данных таблицы stocktaking.user: ~1 rows (приблизительно)
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` (`id`, `login`, `password`, `access_import`, `access_contract`, `access_delete_act`, `access_report`, `do_act_email`) VALUES
+INSERT IGNORE INTO `user` (`id`, `login`, `password`, `access_import`, `access_contract`, `access_delete_act`, `access_report`, `do_act_email`) VALUES
 	(1, 'admin', '21232f297a57a5a743894a0e4a801fc3', 1, 1, 1, 1, 1);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 

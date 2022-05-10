@@ -8,7 +8,6 @@ RUN mkdir -p /opt/docker-library
 WORKDIR /opt/docker-library
 RUN git clone https://github.com/docker-library/healthcheck.git /opt/docker-library/healthcheck
 
-
 FROM golang:${GO_VERSION_ARG} AS app_builder
 ARG GO_VERSION_ARG
 COPY ./.env /var/www/app/.env
@@ -19,6 +18,18 @@ RUN unset GOPATH \
     && go mod edit -go ${GO_VERSION_ARG} \
     && go mod download \
     && go build -o app ./cmd/
+
+FROM golang:${GO_VERSION_ARG} AS app_test
+ARG GO_VERSION_ARG
+COPY ./.env /var/www/app/.env
+COPY ./go /var/www/app
+WORKDIR /var/www/app
+RUN chmod +x ./tests.sh
+RUN unset GOPATH \
+    && go mod tidy \
+    && go mod edit -go ${GO_VERSION_ARG} \
+    && go mod download
+CMD ./tests.sh
 
 FROM alpine:${ALPHINE_VERSION_ARG} AS app_runner
 RUN apk add --no-cache \

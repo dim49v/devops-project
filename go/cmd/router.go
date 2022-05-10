@@ -72,15 +72,14 @@ func NewRouter(db *sql.DB) (http.Handler, error) {
 	authMiddleware := func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			session, _ := router.cookie.Get(r, SessionName)
-			user, ok := session.Values["user"].(User)
-			log.Println(r.URL.Path, user)
+			user, ok := session.Values[userKey].(User)
 			if ok {
 				session.Options.MaxAge = router.sessionLifetime
 				err := session.Save(r, w)
 				if err != nil {
 					log.Println(err.Error())
 				}
-				r = r.WithContext(context.WithValue(context.Background(), "user", user))
+				r = r.WithContext(context.WithValue(context.Background(), userKey, user))
 			} else if r.URL.Path != "/" {
 				http.Redirect(w, r, "/", http.StatusFound)
 				return
@@ -115,7 +114,7 @@ func (router *Router) template(templateFileName string, withBase bool, w http.Re
 }
 
 func (router *Router) getUser(r *http.Request) *User {
-	user := r.Context().Value("user")
+	user := r.Context().Value(userKey)
 	if user != nil {
 		if user, ok := user.(User); ok {
 			return &user
@@ -178,7 +177,7 @@ func (router *Router) Logout() func(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "internal server error", http.StatusInternalServerError)
 				return
 			}
-			session.Values["user"] = nil
+			session.Values[userKey] = nil
 			err = session.Save(r, w)
 			if err != nil {
 				log.Println(err.Error())
@@ -238,6 +237,7 @@ func (router *Router) Statistics() func(http.ResponseWriter, *http.Request) {
 			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}
+		////
 		router.template("statistics.gohtml", true, w, MS{"page": page, "data": data})
 	}
 }

@@ -46,8 +46,7 @@ func LoginProcess(w http.ResponseWriter, r *http.Request, router *Router) (*Logi
 		log.Println(err.Error())
 		return nil, http.StatusInternalServerError, errors.New("internal server error")
 	}
-	exist := rows.Next()
-	if !exist {
+	if !rows.Next() {
 		data.WrongLoginPassword = true
 		return &data, http.StatusOK, nil
 	}
@@ -57,18 +56,23 @@ func LoginProcess(w http.ResponseWriter, r *http.Request, router *Router) (*Logi
 		log.Println(err.Error())
 		return nil, http.StatusInternalServerError, errors.New("internal server error")
 	}
+	//////
 	session, err := cookie.Get(r, SessionName)
 	if err != nil {
 		log.Println(err.Error())
 		return nil, http.StatusInternalServerError, errors.New("internal server error")
 	}
-	session.Values["user"] = user
+	session.Values[userKey] = user
 	session.Options.MaxAge = router.sessionLifetime
 	err = sessions.Save(r, w)
 	if err != nil {
 		log.Println(err.Error())
 		return nil, http.StatusInternalServerError, errors.New("internal server error")
 	}
+	///
+	////
+	///
+	///
 	data.User = &user
 	return &data, 0, nil
 }

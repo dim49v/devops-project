@@ -108,7 +108,7 @@ func StatisticsComponentsProcess(w http.ResponseWriter, r *http.Request, router 
 	yearStr := query.Get("year")
 	var err error
 	if yearStr == "" {
-		log.Println(err.Error())
+		log.Println("empty year")
 		return nil, http.StatusInternalServerError, errors.New("empty year param")
 	}
 	year, err := strconv.Atoi(yearStr)

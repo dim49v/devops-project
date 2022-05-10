@@ -111,7 +111,8 @@ func ActsGetPageProcess(w http.ResponseWriter, r *http.Request, router *Router) 
 		}
 		actData.Bodies[body.ID] = body
 	}
-	rows, err = db.Query("SELECT bp.id, bp.title, bp.body_id, bp.manuf_id, bpe.id, bpe.required, ebp.title, c.id, c.article, c.title, c.size, c.addition " +
+	rows, err = db.Query("SELECT bp.id, bp.title, bp.body_id, bp.manuf_id, bpe.id, bpe.required," +
+		" ebp.title, c.id, c.article, c.title, c.size, c.addition " +
 		"FROM body_part bp " +
 		"JOIN body_part_element bpe ON bpe.body_part_id = bp.id " +
 		"JOIN el_body_part ebp ON bpe.el_body_part_id = ebp.id " +
@@ -313,7 +314,7 @@ func ActsAddProcess(w http.ResponseWriter, r *http.Request, router *Router) (*Ac
 			defer rollback()
 			return nil, http.StatusInternalServerError, errors.New("failed save act file")
 		}
-		res, err = db.Exec("UPDATE act SET file=? WHERE id=?", filename, act.ID)
+		_, err = db.Exec("UPDATE act SET file=? WHERE id=?", filename, act.ID)
 		if err != nil {
 			log.Println(err.Error())
 			defer rollback()
@@ -327,14 +328,14 @@ func ActsAddProcess(w http.ResponseWriter, r *http.Request, router *Router) (*Ac
 	}
 
 	for _, component := range act.Components {
-		res, err = db.Exec("INSERT INTO act_component (act_id, component_id) VALUES (?,?)", act.ID, component)
+		_, err = db.Exec("INSERT INTO act_component (act_id, component_id) VALUES (?,?)", act.ID, component)
 		if err != nil {
 			log.Println(err.Error())
 			defer rollback()
 			return nil, http.StatusInternalServerError, errors.New("internal server error")
 		}
 	}
-	res, err = db.Exec("COMMIT")
+	_, err = db.Exec("COMMIT")
 	if err != nil {
 		log.Println(err.Error())
 		defer rollback()

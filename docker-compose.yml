@@ -11,7 +11,7 @@ services:
         BASIC_AUTH_ARG: ${BASIC_AUTH}
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "${HOST_WEB_PORT}:80"
     depends_on:
       - app_runner
       - phpmyadmin
@@ -20,6 +20,24 @@ services:
       - ./docker/web/config/nginx.conf:/opt/nginx-confs/default.conf.dist:rw
       - ./go/public:/var/www/public:ro
 
+  app_test:
+    build:
+      context: .
+      target: app_test
+      args:
+        GO_VERSION_ARG: ${GO_VERSION}
+        ALPHINE_VERSION_ARG: ${ALPHINE_VERSION}
+    depends_on:
+      - db
+    restart: "no"
+    env_file:
+      - .env
+    volumes:
+      - ./go/test:/var/www/app/test:rw
+      - ./go/cmd:/var/www/app/cmd:ro
+      - ./go/public:/var/www/app/public:ro
+      - ./go/templates:/var/www/app/templates:ro
+
   app_runner:
     build:
       context: .
@@ -27,6 +45,8 @@ services:
       args:
        GO_VERSION_ARG: ${GO_VERSION}
        ALPHINE_VERSION_ARG: ${ALPHINE_VERSION}
+    depends_on:
+      - db
     restart: unless-stopped
     env_file:
       - .env
@@ -43,6 +63,8 @@ services:
         MARIADB_VERSION_ARG: ${MARIADB_VERSION}
         TZ_ARG: ${TZ}
     restart: unless-stopped
+    ports:
+      - "${MYSQL_PORT}:3306"
     env_file:
       - .env
     volumes:

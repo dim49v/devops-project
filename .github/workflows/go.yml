@@ -22,7 +22,7 @@ jobs:
 
       - name: Build
         working-directory: ./go
-        run: go mod tidy && go mod download && go build -v ./go
+        run: go mod tidy && go mod download && go build -v ./
 
       - name: Test
         working-directory: ./go

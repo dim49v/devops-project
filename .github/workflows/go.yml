@@ -20,10 +20,10 @@ jobs:
         with:
           go-version: 1.17
 
-      - name: Build
-        working-directory: ./go
-        run: go mod tidy && go mod download && go build -v ./
+#      - name: Build
+#        working-directory: ./go
+#        run: go mod tidy && go mod download && go build -v ./
 
       - name: Test
         working-directory: ./go
-        run: go test ./cmd/ -v
+        run: go mod tidy && go mod download && go test ./cmd/ -v

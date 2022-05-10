@@ -26,3 +26,4 @@ jobs:
         with:
           version: v1.29
           working-directory: ./go/cmd
+          args: --tests=false
